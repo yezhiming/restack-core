@@ -14,8 +14,4 @@ export function requireAllAsObject(requireContext) {
 
 export createReducer from './utils/createReducer'
 
-export {makeActionType,makeCallAPI,makeBaseApi,makeBaseActionType,bindAction} from './utils/reduxHelper'
-
-export { Request ,callAPI} from './utils/request'
-
 export i18n from './i18n'

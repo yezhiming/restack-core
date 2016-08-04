@@ -1,8 +1,7 @@
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, combineReducers } from 'redux'
 import thunk from 'redux-thunk'
-import {api} from '../middlewares/api/index'
+import { apiMiddleware } from 'redux-api-middleware';
 import { routerReducer as routing } from 'react-router-redux'
-import { combineReducers } from 'redux'
 
 
 export default function configureStore(rootReducer, initialState) {
@@ -15,6 +14,6 @@ export default function configureStore(rootReducer, initialState) {
   return createStore(
     rootReducer,
     initialState,
-    applyMiddleware(thunk,api)
+    applyMiddleware(thunk, apiMiddleware)
   )
 }
