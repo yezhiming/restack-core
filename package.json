@@ -1,14 +1,21 @@
 {
   "name": "restack-core",
   "version": "1.0.0",
-  "description": "",
+  "description": "react application tools",
   "main": "index.js",
   "scripts": {
-    "compile": "babel src --out-dir lib --stage=0",
+    "compile": "babel src --out-dir lib",
     "prepublish": "npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yezhiming/restack-core.git"
   },
   "author": "Justin (justin.yip@foxmail.com)",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yezhiming/restack-core/issues"
+  },
   "dependencies": {
     "babel-runtime": "^6.11.6",
     "jed": "^1.1.1",
@@ -23,13 +30,13 @@
     "redux-thunk": "^2.1.0"
   },
   "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.8.0",
     "babel-plugin-transform-class-properties": "^6.11.5",
+    "babel-plugin-transform-export-extensions": "^6.8.0",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
-    "babel-plugin-transform-regenerator": "^6.11.4",
     "babel-plugin-transform-runtime": "^6.12.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.11.1",
-    "babel-preset-react-hmre": "^1.1.1",
-    "babel-preset-stage-1": "^6.5.0"
+    "babel-preset-react-hmre": "^1.1.1"
   }
 }
