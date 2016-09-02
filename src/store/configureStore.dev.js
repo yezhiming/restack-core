@@ -1,14 +1,14 @@
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux'
-
+// middlewares
 import thunk from 'redux-thunk'
 import createLogger from 'redux-logger'
 import { apiMiddleware } from 'redux-api-middleware';
-
+import DevTools from '../containers/DevTools'
+// reducers
 import { routerReducer as routing } from 'react-router-redux'
 
-import DevTools from '../containers/DevTools'
-
 export default function configureStore(rootReducer, initialState) {
+
   rootReducer = combineReducers({
     ...rootReducer,
     routing
