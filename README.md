@@ -2,8 +2,51 @@
 
 tools make react application development easier.
 
-### redux integration
+### i18n
 
+sample bootstrap script `app.jsx` with i18n
+
+```js
+import React from 'react'
+import { render } from 'react-dom'
+import { App, i18n } from 'restack-core'
+
+i18n.fetchLocaleData({defaultLocale: config.defaultLocale})
+.then(({locale, localeData}) => {
+  render(
+    <App
+      routes={routes}
+      reducers={......}
+      locale={locale}
+      localeData={localeData}
+      />,
+
+    document.getElementById('react-view')
+  );
+})
+.catch(error => {
+  console.error(error);
+});
+```
+
+sample bootstrap script `app.jsx` without i18n
+
+```js
+import React from 'react'
+import { render } from 'react-dom'
+import { App } from 'restack-core'
+
+render(
+  <App
+    routes={routes}
+    reducers={......}
+    locale={locale}
+    localeData={localeData}
+    />,
+
+  document.getElementById('react-view')
+);
+```
 
 ### npm dependencies description
 
@@ -29,6 +72,8 @@ babel-preset-react-hmre|babel-plugin|
 
 
 ### babel plugins
+
+we enabled these es features by babel
 
 #### Async to generator transform
 
