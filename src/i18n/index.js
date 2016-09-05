@@ -23,7 +23,6 @@ function fetchLocaleData({defaultLocale}) {
       throw new Error('Bad response from server');
     }
 
-    console.log(`result: ${locale}, data: ${JSON.stringify(res.json())}`)
     return {locale: locale, localeData: res.json()};
   });
 }
