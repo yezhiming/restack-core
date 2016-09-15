@@ -5,7 +5,8 @@ import createLogger from 'redux-logger'
 import { apiMiddleware } from 'redux-api-middleware';
 import DevTools from '../containers/DevTools'
 // reducers
-import { routerReducer as routing } from 'react-router-redux'
+import { routerReducer as routing, routerMiddleware } from 'react-router-redux'
+import { browserHistory } from 'react-router'
 
 export default function configureStore(rootReducer, initialState) {
 
@@ -14,11 +15,13 @@ export default function configureStore(rootReducer, initialState) {
     routing
   })
 
+  const rMiddleware = routerMiddleware(browserHistory)
+
   const store = createStore(
     rootReducer,
     initialState,
     compose(
-      applyMiddleware(thunk, createLogger(), apiMiddleware),
+      applyMiddleware(thunk, createLogger(), rMiddleware, apiMiddleware),
       DevTools.instrument()
     )
   )
