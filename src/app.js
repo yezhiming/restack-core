@@ -30,17 +30,19 @@ export default class App {
 
     const { locales, defaultLocale } = this.config;
 
-    if (locales) {
-      i18n.fetchLocaleData({defaultLocale})
-      .then( ({locale, localeData}) => {
-        this.render({locale, localeData})
+    const userLocale = i18n.getUserLocale();
+
+    if (locales && userLocale != defaultLocale) {
+
+      i18n.fetchLocaleData(userLocale)
+      .then( localeData => {
+        this.render({userLocale, localeData})
       } )
       .catch(error => {
         console.error(error);
       })
     } else {
-      const emptyLocaleData = {domain: "messages", locale_data: {messages: {}}}
-      this.render({locale: defaultLocale, localeData: emptyLocaleData})
+      this.render({locale: userLocale, localeData: {}})
     }
   }
 
@@ -57,7 +59,7 @@ export default class App {
           <Router history={history} children={this._routes} />
         </i18n.Provider>
       </Provider>,
-      
+
       document.getElementById('react-view')
     );
   }
