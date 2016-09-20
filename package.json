@@ -1,10 +1,10 @@
 {
   "name": "restack-core",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "react application tools",
   "main": "lib/index.js",
   "scripts": {
-    "compile": "babel src --out-dir lib"
+    "compile": "rm -rf lib && babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "lodash": "^4.14.1",
     "moment": "^2.14.1",
     "react": "^15.3.0",
+    "react-dom": "^15.3.0",
     "react-router": "^2.8.1",
     "react-router-redux": "^4.0.5",
     "redux-api-middleware": "^1.0.2",
@@ -31,6 +32,8 @@
     "redux-devtools-log-monitor": "^1.0.11",
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.1.0"
+  },
+  "peerDependencies": {
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.8.0",

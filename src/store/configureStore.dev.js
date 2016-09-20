@@ -5,23 +5,26 @@ import createLogger from 'redux-logger'
 import { apiMiddleware } from 'redux-api-middleware';
 import DevTools from '../containers/DevTools'
 // reducers
-import { routerReducer as routing, routerMiddleware } from 'react-router-redux'
+import { routerReducer, routerMiddleware as createRouterMiddleware } from 'react-router-redux'
 import { browserHistory } from 'react-router'
 
 export default function configureStore(rootReducer, initialState) {
 
   rootReducer = combineReducers({
     ...rootReducer,
-    routing
+    routing: routerReducer
   })
 
-  const rMiddleware = routerMiddleware(browserHistory)
+  // enable navigation via redux actions
+  // https://github.com/reactjs/react-router-redux#what-if-i-want-to-issue-navigation-events-via-redux-actions
+  // http://stackoverflow.com/questions/32612418/transition-to-another-route-on-successful-async-redux-action/32922381#32922381
+  const routerMiddleware = createRouterMiddleware(browserHistory)
 
   const store = createStore(
     rootReducer,
     initialState,
     compose(
-      applyMiddleware(thunk, createLogger(), rMiddleware, apiMiddleware),
+      applyMiddleware(thunk, createLogger(), routerMiddleware, apiMiddleware),
       DevTools.instrument()
     )
   )
