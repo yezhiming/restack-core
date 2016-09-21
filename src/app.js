@@ -30,7 +30,7 @@ export default class App {
 
     const { locales, defaultLocale } = this.config;
 
-    const userLocale = i18n.getUserLocale();
+    const userLocale = i18n.getUserLocale(defaultLocale);
 
     if (locales && userLocale != defaultLocale) {
 

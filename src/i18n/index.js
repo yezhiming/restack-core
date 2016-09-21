@@ -2,7 +2,7 @@ import Provider from './Provider';
 import Tools    from './Tools';
 import fetch    from 'isomorphic-fetch';
 
-function getUserLocale() {
+function getUserLocale(defaultLocale) {
   return sessionStorage['locale'] || defaultLocale;
 }
 
