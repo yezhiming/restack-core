@@ -8,7 +8,7 @@ import DevTools from '../containers/DevTools'
 import { routerReducer, routerMiddleware as createRouterMiddleware } from 'react-router-redux'
 import { browserHistory } from 'react-router'
 
-export default function configureStore(rootReducer, initialState) {
+export default function configureStore(rootReducer, initialState, middlewares = []) {
 
   rootReducer = combineReducers({
     ...rootReducer,
@@ -24,11 +24,11 @@ export default function configureStore(rootReducer, initialState) {
     rootReducer,
     initialState,
     compose(
-      applyMiddleware(thunk, createLogger(), routerMiddleware, apiMiddleware),
+      applyMiddleware(thunk, createLogger(), routerMiddleware, apiMiddleware, ...middlewares),
       DevTools.instrument()
     )
   )
-
+  
   // if (module.hot) {
   //   // Enable Webpack hot module replacement for reducers
   //   module.hot.accept('../reducers', () => {

@@ -6,7 +6,7 @@ import { apiMiddleware } from 'redux-api-middleware';
 import { routerReducer, routerMiddleware as createRouterMiddleware } from 'react-router-redux'
 import { browserHistory } from 'react-router'
 
-export default function configureStore(rootReducer, initialState) {
+export default function configureStore(rootReducer, initialState, middlewares = []) {
 
   rootReducer = combineReducers({
     ...rootReducer,
@@ -18,6 +18,6 @@ export default function configureStore(rootReducer, initialState) {
   return createStore(
     rootReducer,
     initialState,
-    applyMiddleware(thunk, apiMiddleware, routerMiddleware)
+    applyMiddleware(thunk, routerMiddleware, apiMiddleware, ...middlewares)
   )
 }
