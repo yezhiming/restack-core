@@ -1,4 +1,3 @@
-// export App from './containers/Root'
 export configureStore from './store/configureStore'
 
 export function requireAll(requireContext) {
