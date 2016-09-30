@@ -8,6 +8,8 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import configureStore from './store/configureStore';
 import i18n from './i18n';
 
+import modal from './reducers/modal'
+
 export default class App {
 
   constructor(config) {
@@ -48,8 +50,13 @@ export default class App {
 
   render({locale, localeData}) {
 
+    const reducers = {
+      modal,
+      ...this._reducers
+    }
+
     const initialState = window.__INITIAL_STATE__ || {};
-    const store = configureStore(this._reducers, initialState)
+    const store = configureStore(reducers, initialState)
     const history = syncHistoryWithStore(browserHistory, store)
     const i18nTools = new i18n.Tools({localeData, locale});
 
