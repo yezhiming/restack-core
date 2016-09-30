@@ -28,8 +28,8 @@ export default class App {
     this._middlewares = middlewares
   }
 
-  fetchLocalePromise(i18n, userLocale, defaultLocale) {
-    if (i18n && userLocale != defaultLocale) {
+  fetchLocalePromise(needsI18n, userLocale, defaultLocale) {
+    if (needsI18n && userLocale != defaultLocale) {
       return i18n.fetchLocaleData(userLocale)
       .then( localeData => {locale: userLocale, localeData} )
     } else {
@@ -57,25 +57,6 @@ export default class App {
       </Provider>
     )
   }
-
-  // render(el) {
-  //
-  //   const { locales, defaultLocale } = this.config;
-  //
-  //   const userLocale = i18n.getUserLocale(defaultLocale);
-  //
-  //   this.fetchLocalePromise(locales != null, userLocale, defaultLocale)
-  //   .then( ({locale, localeData}) => {
-  //     console.log(`locale: ${locale}, localeData: ${JSON.stringify(localeData)}`)
-  //     const RootComponent = this.createRootComponent({locale, localeData})
-  //     if (el) {
-  //       ReactDOM.render(RootComponent, el)
-  //     } else {
-  //       return RootComponent;
-  //     }
-  //   })
-  //
-  // }
 
   async render(el) {
 
