@@ -1,6 +1,6 @@
 {
   "name": "restack-core",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "react application tools",
   "main": "lib/index.js",
   "scripts": {
@@ -37,6 +37,8 @@
   },
   "peerDependencies": {},
   "devDependencies": {
+    "babel-jest": "^15.0.0",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-async-to-generator": "^6.8.0",
     "babel-plugin-transform-class-properties": "^6.11.5",
     "babel-plugin-transform-export-extensions": "^6.8.0",
