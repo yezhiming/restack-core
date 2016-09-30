@@ -2,8 +2,13 @@ import Provider from './Provider';
 import Tools    from './Tools';
 import fetch    from 'isomorphic-fetch';
 
+
 function getUserLocale(defaultLocale) {
-  return sessionStorage['locale'] || defaultLocale;
+  if (process.env.BROWSER) {
+    return sessionStorage['locale'] || defaultLocale;
+  } else {
+    return defaultLocale;
+  }
 }
 
 function fetchLocaleData(locale) {
