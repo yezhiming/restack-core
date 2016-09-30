@@ -31,7 +31,9 @@ export default class App {
   fetchLocalePromise(needsI18n, userLocale, defaultLocale) {
     if (needsI18n && userLocale != defaultLocale) {
       return i18n.fetchLocaleData(userLocale)
-      .then( localeData => {locale: userLocale, localeData} )
+      .then( localeData => {
+        return {locale: userLocale, localeData}
+      } )
     } else {
       return Promise.resolve({locale: userLocale, localeData: {}})
     }
