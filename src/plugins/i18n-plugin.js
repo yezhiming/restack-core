@@ -83,7 +83,7 @@ export default function i18n({universal = false, defaultLocale, getUserLocale, s
   function fetchLocaleData(locale, defaultLocale) {
 
     if (locale != defaultLocale) {
-      return fetch(`/lang/${locale}.json`).then(res => {
+      return fetch(`/static/lang/${locale}.json`).then(res => {
         if (res.status >= 400) {
           throw new Error('Bad response from server');
         }
