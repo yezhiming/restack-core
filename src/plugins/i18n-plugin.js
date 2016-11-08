@@ -97,6 +97,8 @@ export default function i18n({universal = false, defaultLocale, getUserLocale, s
 
   return {
 
+    name: "i18n",
+
     create: function(pre, app) {
 
       const tools = new Tools({locale: getUserLocale(), localeData: {}})
@@ -110,7 +112,7 @@ export default function i18n({universal = false, defaultLocale, getUserLocale, s
 
     render: function(app, next) {
       fetchLocaleData( getUserLocale(), defaultLocale ).then( ({locale, localeData}) => {
-        console.log('fetch locale data success')
+        console.log('[i18n-plugin] fetch locale data success')
         app.localeData = localeData
         next();
       })

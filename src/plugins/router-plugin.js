@@ -5,6 +5,7 @@ import { routerReducer, routerMiddleware as createRouterMiddleware , syncHistory
 export default function router({universal = false, routes}) {
 
   return {
+    name: "router",
     reducers: {
       routing: routerReducer
     },
@@ -21,10 +22,11 @@ export default function router({universal = false, routes}) {
 
       if (universal) {
         match({ history: browserHistory, routes }, (error, redirectLocation, renderProps) => {
-          console.log('match')
+          console.log('[router-plugin] match')
           next();
         });
       } else {
+        console.log('[router-plugin] match')
         next();
       }
     }

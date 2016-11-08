@@ -2,12 +2,13 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { Router, browserHistory } from 'react-router';
+import { Router, browserHistory, match } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 
 import configureStore from './store/configureStore';
 import i18n from './i18n';
 
+import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
 export default class App {
@@ -42,6 +43,7 @@ export default class App {
   createRootComponent({locale, localeData}) {
 
     const reducers = {
+      errorMessage,
       modal,
       ...this._reducers
     }
@@ -71,9 +73,10 @@ export default class App {
     const RootComponent = this.createRootComponent({locale, localeData})
 
     if (el) {
-      ReactDOM.render(RootComponent, el)
+      ReactDOM.render(RootComponent, el);
+      return Promise.resolve();
     } else {
-      return RootComponent;
+      return Promise.resolve(RootComponent);
     }
 
   }
