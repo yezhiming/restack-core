@@ -95,8 +95,12 @@ class App {
       .mapValues((v, k) => {
         // update effect creator
         function updateFor(name) {
-          return () => {
-            return put({...arguments, type: "@@update", name, update: true})
+          return function update(path, updates) {
+            if (arguments.length === 1) {
+              updates = path
+              path = null
+            }
+            return put({type: "@@update", name, update: true, updates, path})
           }
         }
         // redux-saga effects as second parameter, plus update effect
