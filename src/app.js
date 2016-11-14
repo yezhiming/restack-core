@@ -3,7 +3,6 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { combineReducers } from 'redux'
 import { Provider } from 'react-redux';
-import { routerReducer, routerMiddleware as createRouterMiddleware , syncHistoryWithStore } from 'react-router-redux'
 
 import _ from 'lodash'
 import u from 'updeep'
@@ -22,10 +21,9 @@ class App {
 
       initialState: {},
 
-      middlewares: [createRouterMiddleware(browserHistory)],
+      middlewares: [],
 
       reducers: {
-        routerReducer,
         errorMessage,
         modal
       },
