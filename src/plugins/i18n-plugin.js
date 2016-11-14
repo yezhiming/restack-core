@@ -99,23 +99,31 @@ export default function i18n({universal = false, defaultLocale, getUserLocale, s
 
     name: "i18n",
 
-    create: function(pre, app) {
-
-      const tools = new Tools({locale: getUserLocale(), localeData: {}})
-
-      return (
-        <Provider i18n={tools}>
-          {pre}
-        </Provider>
-      )
+    create: function(next, pre) {
+      fetchLocaleData( getUserLocale(), defaultLocale ).then( ({locale, localeData}) => {
+        console.log('[i18n-plugin.create] fetch locale data success')
+        const tools = new Tools({locale, localeData})
+        next((
+          <Provider i18n={tools}>
+            {pre}
+          </Provider>
+        ));
+      })
     },
 
-    render: function(app, next) {
-      fetchLocaleData( getUserLocale(), defaultLocale ).then( ({locale, localeData}) => {
-        console.log('[i18n-plugin] fetch locale data success')
-        app.localeData = localeData
-        next();
-      })
+    // generator
+    // create: function* (pre) {
+    //   const {locale, localeData} = yield call(fetchLocaleData, getUserLocale(), defaultLocale)
+    //   const tools = new Tools({locale, localeData})
+    //   return (
+    //     <Provider i18n={tools}>
+    //       {pre}
+    //     </Provider>
+    //   )
+    // },
+
+    render: function(next) {
+      next();
     }
   }
 }

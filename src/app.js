@@ -1,83 +1,133 @@
 // core frameworks
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
+import { combineReducers } from 'redux'
 import { Provider } from 'react-redux';
-import { Router, browserHistory, match } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
+import { routerReducer, routerMiddleware as createRouterMiddleware , syncHistoryWithStore } from 'react-router-redux'
 
-import configureStore from './store/configureStore';
-import i18n from './i18n';
+import _ from 'lodash'
+import u from 'updeep'
 
+import co from 'co'
+
+import configureStore from './store/configureStore'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
-export default class App {
+class App {
 
   constructor(config) {
-    this.config = config || {}
-  }
 
-  set routes(routes) {
-    this._routes = routes
-  }
+    const initialApp = {
 
-  set reducers(reducers) {
-    this._reducers = reducers
-  }
+      initialState: {},
 
-  set middlewares(middlewares) {
-    this._middlewares = middlewares
-  }
+      middlewares: [createRouterMiddleware(browserHistory)],
 
-  fetchLocalePromise(needsI18n, userLocale, defaultLocale) {
-    if (needsI18n && userLocale != defaultLocale) {
-      return i18n.fetchLocaleData(userLocale)
-      .then( localeData => {
-        return {locale: userLocale, localeData}
-      } )
-    } else {
-      return Promise.resolve({locale: userLocale, localeData: {}})
+      reducers: {
+        routerReducer,
+        errorMessage,
+        modal
+      },
+
+      plugins: [],
+
+      configureStore: configureStore
+    }
+
+    const overrides = _.pick(config, ['initialState', 'configureStore', 'plugins'])
+
+    this.app = {...initialApp, ...overrides}
+
+    const { middlewares, reducers } = this.app;
+
+    this.app = {
+      ...this.app,
+      middlewares: middlewares.concat(config.middlewares),
+      reducers: {
+        ...reducers,
+        ...config.reducers
+      }
     }
   }
 
-  createRootComponent({locale, localeData}) {
+  module({name, initialState, reducers = {}, sagas}) {
 
-    const reducers = {
-      errorMessage,
-      modal,
-      ...this._reducers
+    // reducers = _.mapKeys(reducers, (v, k) => name + '/' + k)
+
+    const moduleReducer = combineReducers(reducers)
+
+    const finalReducer = function(state = initialState, action) {
+
     }
 
-    const initialState = window.__INITIAL_STATE__ || {};
-    const store = configureStore(reducers, initialState, this._middlewares)
-    const history = syncHistoryWithStore(browserHistory, store)
-    const i18nTools = new i18n.Tools({localeData, locale});
+    this.app = {
+      ...this.app,
+      sagas: {
+        ...this.app.sagas,
+        ...sagas
+      }
+    }
+  }
+
+  create() {
+
+    const { app } = this;
+    const middlewares = _.compact(app.middlewares)
+    const store = app.store = configureStore(app.reducers, app.initialState, middlewares)
+
+    const promises = app.plugins.map( plugin => {
+      return function() {
+        return new Promise((resolve, reject) => {
+          plugin.create(app, resolve, reject)
+        })
+      }
+    })
+
+    promises.reduce( (chain, p) => {
+      return chain = chain.then(p)
+    }, )
 
     return (
       <Provider store={store}>
-        <i18n.Provider i18n={i18nTools}>
-          <Router history={history} children={this._routes} />
-        </i18n.Provider>
+        {component}
       </Provider>
     )
   }
 
-  async render(el) {
+  render(el) {
 
-    const { locales, defaultLocale } = this.config;
+    const { app } = this;
 
-    const userLocale = i18n.getUserLocale(defaultLocale);
+    const RootComponent = this.create();
 
-    const {locale, localeData} = await this.fetchLocalePromise(locales != null, userLocale, defaultLocale)
+    // convert to promises
+    const promises = app.plugins.map( plugin => {
+      return function() {
+        return new Promise((resolve, reject) => {
+          plugin.render(app, resolve, reject)
+        })
+      }
+    })
 
-    const RootComponent = this.createRootComponent({locale, localeData})
+    // execute plugin.render in order
+    promises.reduce( (chain, p) => {
+      return chain = chain.then(p)
+    }, Promise.resolve()).then( () => {
+      console.log('final')
 
-    if (el) {
-      ReactDOM.render(RootComponent, el);
-      return Promise.resolve();
-    } else {
-      return Promise.resolve(RootComponent);
-    }
+      if (el) {
+        ReactDOM.render(RootComponent, el);
+      } else {
+        return RootComponent
+      }
+    })
 
   }
 }
+
+function createApp(config) {
+  return new App(config);
+}
+
+export default createApp;
