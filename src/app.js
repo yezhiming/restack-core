@@ -41,7 +41,7 @@ class App {
 
     this.app = {
       ...this.app,
-      middlewares: middlewares.concat(config.middlewares),
+      middlewares: _.compact(middlewares.concat(config.middlewares)),
       reducers: {
         ...reducers,
         ...config.reducers
@@ -71,54 +71,75 @@ class App {
   create() {
 
     const { app } = this;
-    const middlewares = _.compact(app.middlewares)
-    const store = app.store = configureStore(app.reducers, app.initialState, middlewares)
 
-    const promises = app.plugins.map( plugin => {
-      return function() {
-        return new Promise((resolve, reject) => {
-          plugin.create(app, resolve, reject)
-        })
+    // merge plugin reducers into app reducers
+    const reducers = app.plugins.reduce( (all, plugin) => {
+      return {
+        ...all,
+        ...plugin.reducers
       }
+    }, app.reducers)
+
+    const initialState = app.plugins.reduce( (all, plugin) => {
+      return {
+        ...all,
+        ...plugin.initialState
+      }
+    }, app.initialState)
+
+    const middlewares = app.plugins.reduce( (all, plugin) => {
+      return [
+        ...all,
+        ...plugin.middlewares || []
+      ]
+    }, app.middlewares)
+
+    const store = app.store = configureStore(reducers, initialState, middlewares)
+
+    // create chain
+    // Promise.resolve() -> plugin1.create -> plugin2.create, ... -> return Root
+    return app.plugins.reduce( (chain, plugin) => {
+      return chain.then( component => {
+        return new Promise((resolve, reject) => {
+          plugin.create(resolve, component, app)
+        })
+      })
+    }, Promise.resolve())
+    .then( component => {
+      return (
+        <Provider store={store}>
+          {component}
+        </Provider>
+      )
     })
 
-    promises.reduce( (chain, p) => {
-      return chain = chain.then(p)
-    }, )
-
-    return (
-      <Provider store={store}>
-        {component}
-      </Provider>
-    )
   }
 
   render(el) {
 
     const { app } = this;
 
-    const RootComponent = this.create();
+    this.create().then( RootComponent => {
+      console.log('got root component')
 
-    // convert to promises
-    const promises = app.plugins.map( plugin => {
-      return function() {
-        return new Promise((resolve, reject) => {
-          plugin.render(app, resolve, reject)
+      const renderChain = app.plugins.reduce( (chain, plugin) => {
+        return chain.then( result => {
+          return new Promise( (resolve, reject) => {
+            plugin.render(resolve)
+          })
         })
-      }
-    })
+      }, Promise.resolve())
 
-    // execute plugin.render in order
-    promises.reduce( (chain, p) => {
-      return chain = chain.then(p)
-    }, Promise.resolve()).then( () => {
-      console.log('final')
+      renderChain.then( () => {
+        console.log('final')
 
-      if (el) {
-        ReactDOM.render(RootComponent, el);
-      } else {
-        return RootComponent
-      }
+        if (el) {
+          ReactDOM.render(RootComponent, el);
+        } else {
+          return RootComponent
+        }
+      })
+
     })
 
   }
