@@ -1,15 +1,12 @@
 // core frameworks
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { combineReducers } from 'redux'
 import { Provider } from 'react-redux';
 import createSagaMiddleware, { effects, takeEvery } from 'redux-saga'
 import { put } from 'redux-saga/effects'
 
 import _ from 'lodash'
 import u from 'updeep'
-
-import co from 'co'
 
 import configureStore from './store/configureStore'
 import errorMessage from './reducers/errorMessage'
