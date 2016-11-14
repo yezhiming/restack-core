@@ -3,6 +3,8 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { combineReducers } from 'redux'
 import { Provider } from 'react-redux';
+import createSagaMiddleware, { effects, takeEvery } from 'redux-saga'
+import { put } from 'redux-saga/effects'
 
 import _ from 'lodash'
 import u from 'updeep'
@@ -17,11 +19,13 @@ class App {
 
   constructor(config) {
 
+    const sagaMiddleware = createSagaMiddleware()
+
     const initialApp = {
 
       initialState: {},
 
-      middlewares: [],
+      middlewares: [sagaMiddleware],
 
       reducers: {
         errorMessage,
@@ -30,7 +34,9 @@ class App {
 
       plugins: [],
 
-      configureStore: configureStore
+      configureStore: configureStore,
+
+      models: []
     }
 
     const overrides = _.pick(config, ['initialState', 'configureStore', 'plugins'])
@@ -47,25 +53,13 @@ class App {
         ...config.reducers
       }
     }
+
+    this.app.sagaMiddleware = sagaMiddleware;
   }
 
-  module({name, initialState, reducers = {}, sagas}) {
-
-    // reducers = _.mapKeys(reducers, (v, k) => name + '/' + k)
-
-    const moduleReducer = combineReducers(reducers)
-
-    const finalReducer = function(state = initialState, action) {
-
-    }
-
-    this.app = {
-      ...this.app,
-      sagas: {
-        ...this.app.sagas,
-        ...sagas
-      }
-    }
+  model(model) {
+    const { app } = this;
+    app.models = [...app.models, model];
   }
 
   create() {
@@ -74,17 +68,11 @@ class App {
 
     // merge plugin reducers into app reducers
     const reducers = app.plugins.reduce( (all, plugin) => {
-      return {
-        ...all,
-        ...plugin.reducers
-      }
+      return {...all, ...plugin.reducers}
     }, app.reducers)
 
     const initialState = app.plugins.reduce( (all, plugin) => {
-      return {
-        ...all,
-        ...plugin.initialState
-      }
+      return {...all, ...plugin.initialState}
     }, app.initialState)
 
     const middlewares = app.plugins.reduce( (all, plugin) => {
@@ -94,7 +82,37 @@ class App {
       ]
     }, app.middlewares)
 
-    const store = app.store = configureStore(reducers, initialState, middlewares)
+    const store = window.store = app.store = configureStore(reducers, initialState, middlewares)
+
+
+
+    const sagas = _(app.models)
+    .filter(m => m.sagas)
+    .reduce( (all, m) => {
+
+      const sagas = _(m.sagas)
+      .mapKeys((v, k) => `${m.name}/${k}`)
+      .mapValues((v, k) => {
+        // update effect creator
+        function updateFor(name) {
+          return () => {
+            return put({...arguments, type: "@@update", name, update: true})
+          }
+        }
+        // redux-saga effects as second parameter, plus update effect
+        const enhancedEffects = {...effects, update: updateFor(m.name)}
+        return function* () {
+          console.log(`takeEvery: ${k}`)
+          // yield takeEvery(k, v)
+          yield takeEvery(k, (action) => v(action, enhancedEffects))
+        }
+      })
+      .value()
+
+      return {...all, ...sagas}
+    }, {})
+
+    _.each(sagas, app.sagaMiddleware.run)
 
     // create chain
     // Promise.resolve() -> plugin1.create -> plugin2.create, ... -> return Root
@@ -135,6 +153,7 @@ class App {
 
         if (el) {
           ReactDOM.render(RootComponent, el);
+          // return something?
         } else {
           return RootComponent
         }
