@@ -1,6 +1,6 @@
 {
   "name": "restack-core",
-  "version": "0.2.2",
+  "version": "0.3.1",
   "description": "react application tools",
   "main": "lib/index.js",
   "scripts": {
@@ -19,14 +19,13 @@
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",
-    "co": "^4.6.0",
     "cookie": "^0.3.1",
     "isomorphic-fetch": "^2.2.1",
     "jed": "^1.1.1",
     "lodash": "^4.14.1",
     "moment": "^2.14.1",
     "react": "^15.3.2",
-    "react-dom": "^15.3.0",
+    "react-dom": "^15.3.2",
     "react-router": "^2.8.1",
     "react-router-redux": "^4.0.5",
     "redux-devtools": "^3.3.1",
