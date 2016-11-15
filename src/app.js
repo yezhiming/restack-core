@@ -3,13 +3,13 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import createSagaMiddleware, { effects, takeEvery } from 'redux-saga'
-import { put } from 'redux-saga/effects'
 
 import _ from 'lodash'
 import u from 'updeep'
 
 import configureStore from './store/configureStore'
 import createUpdeep from './reducers/updeep'
+import { createModelReducer, createUpdateEffect } from './model'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
@@ -63,11 +63,18 @@ class App {
   createStore() {
     const { app } = this;
 
+    let reducers = app.reducers;
     // merge plugin reducers into app reducers
-    const reducers = app.plugins.reduce( (all, plugin) => {
+    reducers = app.plugins.reduce( (all, plugin) => {
       return {...all, ...plugin.reducers}
-    }, app.reducers)
+    }, reducers)
+    // create a default Reducer for each model
+    reducers = app.models.reduce( (all, model) => {
+      const modelReducer = createModelReducer(model.name, model.initialState)
+      return {...all, [model.name]: modelReducer}
+    }, reducers)
 
+    // merge plugin initialState
     const initialState = app.plugins.reduce( (all, plugin) => {
       return {...all, ...plugin.initialState}
     }, app.initialState)
@@ -79,7 +86,7 @@ class App {
       ]
     }, app.middlewares)
 
-    return configureStore(createUpdeep(reducers), initialState, middlewares)
+    return configureStore(reducers, initialState, middlewares)
   }
 
   createSagas() {
@@ -92,18 +99,8 @@ class App {
       const sagas = _(m.sagas)
       .mapKeys((v, k) => `${m.name}/${k}`)
       .mapValues((v, k) => {
-        // update effect creator
-        function updateFor(name) {
-          return function update(path, updates) {
-            if (arguments.length === 1) {
-              updates = path
-              path = null
-            }
-            return put({type: "@@update", name, update: true, updates, path})
-          }
-        }
         // redux-saga effects as second parameter, plus update effect
-        const enhancedEffects = {...effects, update: updateFor(m.name)}
+        const enhancedEffects = {...effects, update: createUpdateEffect(m.name)}
         return function* () {
           console.log(`takeEvery: ${k}`)
           // yield takeEvery(k, v)
@@ -126,6 +123,7 @@ class App {
 
     const sagas = this.createSagas();
 
+    // run sagas
     _.each(sagas, app.sagaMiddleware.run)
 
     // create chain
