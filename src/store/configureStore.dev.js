@@ -5,7 +5,7 @@ import DevTools from '../containers/DevTools'
 
 export default function configureStore(rootReducer, initialState, middlewares = []) {
 
-  rootReducer = combineReducers(rootReducer)
+  // rootReducer = combineReducers(rootReducer)
 
   const store = createStore(
     rootReducer,

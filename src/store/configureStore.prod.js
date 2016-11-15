@@ -5,7 +5,7 @@ import { browserHistory } from 'react-router'
 
 export default function configureStore(rootReducer, initialState, middlewares = []) {
 
-  rootReducer = combineReducers(rootReducer)
+  // rootReducer = combineReducers(rootReducer)
 
   return createStore(
     rootReducer,

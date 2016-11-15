@@ -9,6 +9,7 @@ import _ from 'lodash'
 import u from 'updeep'
 
 import configureStore from './store/configureStore'
+import createUpdeep from './reducers/updeep'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
@@ -59,8 +60,7 @@ class App {
     app.models = [...app.models, model];
   }
 
-  create() {
-
+  createStore() {
     const { app } = this;
 
     // merge plugin reducers into app reducers
@@ -79,9 +79,11 @@ class App {
       ]
     }, app.middlewares)
 
-    const store = window.store = app.store = configureStore(reducers, initialState, middlewares)
+    return configureStore(createUpdeep(reducers), initialState, middlewares)
+  }
 
-
+  createSagas() {
+    const { app } = this;
 
     const sagas = _(app.models)
     .filter(m => m.sagas)
@@ -112,6 +114,17 @@ class App {
 
       return {...all, ...sagas}
     }, {})
+
+    return sagas;
+  }
+
+  create() {
+
+    const { app } = this;
+
+    const store = window.store = app.store = this.createStore();
+
+    const sagas = this.createSagas();
 
     _.each(sagas, app.sagaMiddleware.run)
 
