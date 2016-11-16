@@ -150,7 +150,7 @@ class App {
     const { app } = this;
 
     this.create().then( RootComponent => {
-      console.log('got root component')
+      console.log('[restack] root component created')
 
       const renderChain = app.plugins.reduce( (chain, plugin) => {
         return chain.then( result => {
@@ -161,7 +161,7 @@ class App {
       }, Promise.resolve())
 
       renderChain.then( () => {
-        console.log('final')
+        console.log('[restack] render')
 
         if (el) {
           ReactDOM.render(RootComponent, el);
