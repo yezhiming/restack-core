@@ -4,7 +4,9 @@
   "description": "react application tools",
   "main": "lib/index.js",
   "scripts": {
-    "compile": "rm -rf lib && babel src --out-dir lib",
+    "clean": "rm -rf lib",
+    "compile": "babel src --out-dir lib",
+    "compile:watch": "babel src --out-dir lib --watch",
     "test": "cross-env BABEL_ENV=commonjs jest --verbose",
     "test:watch": "npm test --watch"
   },
