@@ -8,7 +8,6 @@ import _ from 'lodash'
 import u from 'updeep'
 
 import configureStore from './store/configureStore'
-import createUpdeep from './reducers/updeep'
 import { createModelReducer, createUpdateEffect } from './model'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
@@ -149,7 +148,7 @@ class App {
 
     const { app } = this;
 
-    this.create().then( RootComponent => {
+    return this.create().then( RootComponent => {
       console.log('[restack] root component created')
 
       const renderChain = app.plugins.reduce( (chain, plugin) => {
@@ -160,7 +159,7 @@ class App {
         })
       }, Promise.resolve())
 
-      renderChain.then( () => {
+      return renderChain.then( () => {
         console.log('[restack] render')
 
         if (el) {

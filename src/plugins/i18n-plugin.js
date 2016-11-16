@@ -111,17 +111,6 @@ export default function i18n({universal = false, defaultLocale, getUserLocale, s
       })
     },
 
-    // generator
-    // create: function* (pre) {
-    //   const {locale, localeData} = yield call(fetchLocaleData, getUserLocale(), defaultLocale)
-    //   const tools = new Tools({locale, localeData})
-    //   return (
-    //     <Provider i18n={tools}>
-    //       {pre}
-    //     </Provider>
-    //   )
-    // },
-
     render: function(next) {
       next();
     }
