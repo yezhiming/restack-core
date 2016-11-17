@@ -18,10 +18,10 @@ export default function router({universal = false, routes, history = browserHist
     // warp create
     create: function(next, pre, app) {
 
-      const history = syncHistoryWithStore(history, app.store)
+      const syncHistory = syncHistoryWithStore(history, app.store)
 
       next(
-        <Router history={history} children={routes} />
+        <Router history={syncHistory} children={routes} />
       )
     },
     // warp render
