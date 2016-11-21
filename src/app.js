@@ -12,6 +12,8 @@ import { createModelReducer, createUpdateEffect } from './model'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
+const CANCEL_SAGAS = "CANCEL_SAGAS";
+
 class App {
 
   constructor(config) {
@@ -59,9 +61,16 @@ class App {
     app.models = [...app.models, model];
   }
 
-  models(models) {
-    this.app.models = models;
-  }
+  //hmr for sagas modules
+  replaceSagas(models) {
+    const {app} = this;
+    app.models = models;
+    app.store.dispatch({type:CANCEL_SAGAS})
+    setTimeout(()=>{
+      const sagas = this.createSagas();
+      _.each(sagas, app.sagaMiddleware.run)
+    })
+	}
 
   // 1. collect reducers from plugins & models (created by framework)
   // 2. collect initialState from app config & plugins
@@ -99,6 +108,22 @@ class App {
   createSagas() {
     const { app } = this;
 
+    const createAbortableSaga = (function currySaga(){
+      if (process.env.NODE_ENV !== 'development'){
+        return function(watcher){
+          return watcher;
+        }
+      }else{
+        return function(watcher){
+          return function* main () {
+              const sagaTask = yield effects.fork(watcher);
+              yield effects.take(CANCEL_SAGAS);
+              yield effects.cancel(sagaTask);
+          };
+        }
+      }
+    })()
+
     const sagas = _(app.models)
     .filter(m => m.sagas)
     .reduce( (all, m) => {
@@ -108,11 +133,14 @@ class App {
       .mapValues((v, k) => {
         // redux-saga effects as second parameter, plus update effect
         const enhancedEffects = {...effects, update: createUpdateEffect(m.name)}
-        return function* () {
+        const watcher = function* () {
           console.log(`takeEvery: ${k}`)
           // yield takeEvery(k, v)
+          // yield takeEvery(k, (action) => v(action, enhancedEffects))
           yield takeEvery(k, (action) => v(action, enhancedEffects))
         }
+
+        return createAbortableSaga(watcher);
       })
       .value()
 
