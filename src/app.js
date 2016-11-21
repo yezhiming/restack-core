@@ -105,7 +105,7 @@ class App {
     const { app } = this;
 
     const createAbortableSaga = (function currySaga(){
-      if (process.env.NODE_ENV === 'production'){
+      if (process.env.NODE_ENV !== 'development'){
         return function(watcher){
           return watcher;
         }
