@@ -59,6 +59,14 @@ class App {
     app.models = [...app.models, model];
   }
 
+  models(models) {
+    this.app.models = models;
+  }
+
+  // 1. collect reducers from plugins & models (created by framework)
+  // 2. collect initialState from app config & plugins
+  // 3. collect middlewares from plugins
+  // 4. create store
   createStore() {
     const { app } = this;
 
