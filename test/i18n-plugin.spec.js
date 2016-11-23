@@ -1,4 +1,4 @@
-import { Tools } from '../src/plugins/i18n-plugin'
+import { Tools, Provider } from '../lib/plugins/i18n-plugin'
 
 describe('i18n-plugin Tools', () => {
   it('should be accessable', () => {
@@ -34,5 +34,12 @@ describe('i18n-plugin Tools', () => {
     })
 
     expect( tools.l(TEST_KEY) ).toBe(TEST_VALUE)
+  })
+})
+
+describe('i18n-plugin Provider', () => {
+
+  it('should be accessable', () => {
+    expect(Provider).not.toBeNull();
   })
 })

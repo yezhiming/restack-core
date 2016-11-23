@@ -50,7 +50,7 @@ export class Tools {
     }
 }
 
-class Provider extends React.Component {
+export class Provider extends React.Component {
     static propTypes = {
         i18n     : React.PropTypes.object.isRequired,
         children : React.PropTypes.object.isRequired
