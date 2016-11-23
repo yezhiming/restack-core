@@ -61,17 +61,6 @@ class App {
     app.models = [...app.models, model];
   }
 
-  //hmr for sagas modules
-  replaceSagas(models) {
-    const {app} = this;
-    app.models = models;
-    app.store.dispatch({type:CANCEL_SAGAS})
-    setTimeout(()=>{
-      const sagas = this.createSagas();
-      _.each(sagas, app.sagaMiddleware.run)
-    })
-	}
-
   // 1. collect reducers from plugins & models (created by framework)
   // 2. collect initialState from app config & plugins
   // 3. collect middlewares from plugins
@@ -149,6 +138,17 @@ class App {
 
     return sagas;
   }
+
+  //hmr for sagas modules
+  replaceSagas(models) {
+    const {app} = this;
+    app.models = models;
+    app.store.dispatch({type:CANCEL_SAGAS})
+    setTimeout(()=>{
+      const sagas = this.createSagas();
+      _.each(sagas, app.sagaMiddleware.run)
+    })
+	}
 
   create() {
 
