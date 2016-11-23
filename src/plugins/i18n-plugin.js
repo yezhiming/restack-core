@@ -7,7 +7,7 @@ function sprintf(text, ...params) {
     return Jed.sprintf(text, ...params);
 }
 
-class Tools {
+export class Tools {
     constructor({ localeData, locale }) {
         this.jed = new Jed(localeData);
         this.locale = locale;
