@@ -1,6 +1,7 @@
 // core frameworks
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
+import { combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import createSagaMiddleware, { effects, takeEvery } from 'redux-saga'
 
@@ -75,8 +76,16 @@ class App {
     }, reducers)
     // create a default Reducer for each model
     reducers = app.models.reduce( (all, model) => {
-      const modelReducer = createModelReducer(model.name, model.initialState)
-      return {...all, [model.name]: modelReducer}
+
+      const modelReducers = combineReducers(model.reducers)
+
+      const updateReducer = createModelReducer(model.name, model.initialState)
+
+      const modelRootReducer = function(state = initialState, action) {
+        return updateReducer(modelReducers(state, action), action)
+      }
+
+      return {...all, [model.name]: modelRootReducer}
     }, reducers)
 
     // merge plugin initialState
@@ -116,6 +125,8 @@ class App {
     const sagas = _(app.models)
     .filter(m => m.sagas)
     .reduce( (all, m) => {
+
+      //TODO: see what?
 
       const sagas = _(m.sagas)
       .mapKeys((v, k) => `${m.name}/${k}`)
@@ -200,7 +211,7 @@ class App {
 
         if (el) {
           ReactDOM.render(RootComponent, el);
-          // return something?
+          //TODO: return something?
         } else {
           return RootComponent
         }

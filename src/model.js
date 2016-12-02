@@ -30,6 +30,6 @@ export function createUpdateEffect(namespace) {
       updates = path
       path = null
     }
-    return put({type: UPDATE, namespace, update: true, updates, path})
+    return put({type: UPDATE, namespace, updates, path})
   }
 }
