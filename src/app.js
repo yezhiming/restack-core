@@ -8,6 +8,7 @@ import createSagaMiddleware, { effects, takeEvery } from 'redux-saga'
 import _ from 'lodash'
 import u from 'updeep'
 
+import createAbortableSaga from './utils/createAbortableSaga'
 import configureStore from './store/configureStore'
 import { createModelReducer, createUpdateEffect } from './model'
 import errorMessage from './reducers/errorMessage'
@@ -77,11 +78,12 @@ class App {
     // create a default Reducer for each model
     reducers = app.models.reduce( (all, model) => {
 
-      const modelReducers = combineReducers(model.reducers)
+      const modelReducers = _.isFunction(model.reducers) ?
+      model.reducers : combineReducers(model.reducers)
 
       const updateReducer = createModelReducer(model.name, model.initialState)
 
-      const modelRootReducer = function(state = initialState, action) {
+      const modelRootReducer = function(state = model.initialState, action) {
         return updateReducer(modelReducers(state, action), action)
       }
 
@@ -105,22 +107,6 @@ class App {
 
   createSagas() {
     const { app } = this;
-
-    const createAbortableSaga = (function currySaga(){
-      if (process.env.NODE_ENV !== 'development'){
-        return function(watcher){
-          return watcher;
-        }
-      }else{
-        return function(watcher){
-          return function* main () {
-              const sagaTask = yield effects.fork(watcher);
-              yield effects.take(CANCEL_SAGAS);
-              yield effects.cancel(sagaTask);
-          };
-        }
-      }
-    })()
 
     const sagas = _(app.models)
     .filter(m => m.sagas)

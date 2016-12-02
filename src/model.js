@@ -11,7 +11,7 @@ export function createModelReducer(namespace, initialState) {
     const { path, updates } = action;
 
     if (action.type == UPDATE && action.namespace == namespace) {
-      console.log(`[restack] model update state: ${namespace}.${path} -> ${updates}`)
+      console.log(`[restack] model update state: ${namespace}.${path} -> ${JSON.stringify(updates)}`)
       if (path) {
         state = u.updateIn(path, updates, state)
       } else {
