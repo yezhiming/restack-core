@@ -8,13 +8,11 @@ import createSagaMiddleware, { effects, takeEvery } from 'redux-saga'
 import _ from 'lodash'
 import u from 'updeep'
 
-import createAbortableSaga from './utils/createAbortableSaga'
+import createAbortableSaga, {CANCEL_SAGAS} from './utils/createAbortableSaga'
 import configureStore from './store/configureStore'
 import { createModelReducer, createUpdateEffect } from './model'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
-
-const CANCEL_SAGAS = "CANCEL_SAGAS";
 
 class App {
 
@@ -78,13 +76,20 @@ class App {
     // create a default Reducer for each model
     reducers = app.models.reduce( (all, model) => {
 
-      const modelReducers = _.isFunction(model.reducers) ?
-      model.reducers : combineReducers(model.reducers)
+      let modelReducers = model.reducers;
+
+      // combine if nessasary
+      if (_.isObject(model.reducers)) {
+        modelReducers = combineReducers(model.reducers)
+      }
 
       const updateReducer = createModelReducer(model.name, model.initialState)
 
       const modelRootReducer = function(state = model.initialState, action) {
-        return updateReducer(modelReducers(state, action), action)
+        if (_.isFunction(modelReducers)) {
+          state = modelReducers(state, action)
+        }
+        return updateReducer(state, action)
       }
 
       return {...all, [model.name]: modelRootReducer}

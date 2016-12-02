@@ -13,6 +13,18 @@ const MODIFIED_NAME = "MODIFIED_NAME"
 const initialState = {done: false, name: INITIAL_NAME}
 
 describe('create app', () => {
+
+  it('can define no reducers', () => {
+    const app = createApp({});
+    app.model({
+      name: "test",
+      initialState: {}
+    })
+    app.create()
+    const { store } = window;
+    console.log(store.getState())
+  })
+
   it('can define reducers as object', () => {
 
     const app = createApp({});

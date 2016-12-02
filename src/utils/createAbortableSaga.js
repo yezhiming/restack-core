@@ -1,5 +1,7 @@
 import { effects } from 'redux-saga'
 
+export const CANCEL_SAGAS = "CANCEL_SAGAS";
+
 const createAbortableSaga = (function currySaga(){
   if (process.env.NODE_ENV !== 'development'){
     return function(watcher){
