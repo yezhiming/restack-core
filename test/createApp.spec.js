@@ -17,7 +17,7 @@ describe('create app', () => {
   it('can render on server', () => {
     const app = createApp({});
 
-    app.render().then(result => {
+    return app.render().then(result => {
       expect(result).not.toBeNull()
     });
   })
