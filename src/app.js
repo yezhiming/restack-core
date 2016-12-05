@@ -10,7 +10,7 @@ import u from 'updeep'
 
 import createAbortableSaga, {CANCEL_SAGAS} from './utils/createAbortableSaga'
 import configureStore from './store/configureStore'
-import { createModelReducer, createUpdateEffect } from './model'
+import { createUpdateReducer, createUpdateEffect } from './model'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
@@ -83,7 +83,7 @@ class App {
         modelReducers = combineReducers(model.reducers)
       }
 
-      const updateReducer = createModelReducer(model.name, model.initialState)
+      const updateReducer = createUpdateReducer(model.name, model.initialState)
 
       const modelRootReducer = function(state = model.initialState, action) {
         if (_.isFunction(modelReducers)) {

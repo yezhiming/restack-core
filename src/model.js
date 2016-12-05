@@ -4,9 +4,10 @@ import { put } from 'redux-saga/effects'
 
 export const UPDATE = '@@restack/update'
 
-export function createModelReducer(namespace, initialState) {
+// create update reducer for model
+export function createUpdateReducer(namespace, initialState) {
 
-  return function modelReducer(state = initialState, action) {
+  return function updateReducer(state = initialState, action) {
 
     const { path, updates } = action;
 
