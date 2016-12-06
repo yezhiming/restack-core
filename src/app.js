@@ -10,7 +10,7 @@ import u from 'updeep'
 
 import createAbortableSaga, {CANCEL_SAGAS} from './utils/createAbortableSaga'
 import configureStore from './store/configureStore'
-import { createUpdateReducer, createUpdateEffect } from './model'
+import { createUpdateReducer, createUpdateEffect } from './utils/updateReducer'
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
@@ -175,7 +175,7 @@ class App {
     .then( component => {
       return (
         <Provider store={store}>
-          {component}
+          {component || (<div></div>)}
         </Provider>
       )
     })

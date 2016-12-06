@@ -1,5 +1,5 @@
 import createApp from '../src/app'
-import {UPDATE} from '../src/model'
+import {UPDATE} from '../src/utils/updateReducer'
 
 // 产生效果的action
 const TAKE_EFFECT_ACTION = 'TAKE_EFFECT_ACTION'
@@ -25,7 +25,7 @@ describe('create app', () => {
     console.log(store.getState())
   })
 
-  it('can define reducers as object', () => {
+  it('can define reducers as map', () => {
 
     const app = createApp({});
 
@@ -87,5 +87,35 @@ describe('create app', () => {
     console.log(store.getState())
 
     expect(store.getState().test).toEqual(initialState)
+  })
+
+  it('can define sagas as map', () => {
+
+  })
+
+  it('can define sagas as function', () => {
+    const app = createApp({});
+    app.model({
+      createSagas: () => {
+
+        function* g1() {
+
+        }
+
+        function* g2() {
+
+        }
+
+        function* root() {
+          yield [
+            fork(g1),
+            fork(g2)
+          ]
+        }
+
+        return root
+      }
+    })
+
   })
 })

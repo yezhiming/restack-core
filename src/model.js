@@ -1,36 +1,63 @@
+import _ from 'lodash'
 import { combineReducers } from 'redux'
-import u from 'updeep'
-import { put } from 'redux-saga/effects'
+import { createUpdateReducer, createUpdateEffect } from './utils/updateReducer'
 
-export const UPDATE = '@@restack/update'
+class Model {
 
-// create update reducer for model
-export function createUpdateReducer(namespace, initialState) {
+  constructor(config) {
+    if (!config.name) throw new Error('must provide a model name.')
+    this.config = config
+  }
 
-  return function updateReducer(state = initialState, action) {
+  createSaga() {
+    const { name, reducers, createSaga, sagas } = this.config;
 
-    const { path, updates } = action;
+    if (_.isFunction(createSaga)) return createSaga()
 
-    if (action.type == UPDATE && action.namespace == namespace) {
-      console.log(`[restack] model update state: ${namespace}.${path} -> ${JSON.stringify(updates)}`)
-      if (path) {
-        state = u.updateIn(path, updates, state)
-      } else {
-        state = u(updates, state)
+    _(sagas)
+    .mapKeys((v, k) => `${name}/${k}`)
+    .mapValues((v, k) => {
+      // redux-saga effects as second parameter, plus update effect
+      const enhancedEffects = {...effects, update: createUpdateEffect(name)}
+      const watcher = function* () {
+        console.log(`takeEvery: ${k}`)
+        // yield takeEvery(k, v)
+        // yield takeEvery(k, (action) => v(action, enhancedEffects))
+        yield takeEvery(k, (action) => v(action, enhancedEffects))
       }
-      return state;
-    } else {
-      return state;
+
+      return createAbortableSaga(watcher);
+    })
+    .value()
+  }
+
+  createReducer() {
+    const { name, initialState, reducers, createReducer } = this.config;
+
+    // custom create function
+    if (_.isFunction(createReducer)) return createReducer()
+
+    let modelReducer = null;
+
+    // combine if nessasary
+    if (_.isObject(reducers) && !_.isEmpty(reducers)) {
+      modelReducer = combineReducers(reducers)
     }
+
+    // update reducer
+    const updateReducer = createUpdateReducer(name, initialState)
+
+    const modelRootReducer = function(state = initialState, action) {
+      if (_.isFunction(modelReducer)) {
+        state = modelReducer(state, action)
+      }
+      return updateReducer(state, action)
+    }
+
+    return modelRootReducer
   }
 }
 
-export function createUpdateEffect(namespace) {
-  return function update(path, updates) {
-    if (arguments.length === 1) {
-      updates = path
-      path = null
-    }
-    return put({type: UPDATE, namespace, updates, path})
-  }
+export default function createModel(model) {
+  return new Model(model)
 }
