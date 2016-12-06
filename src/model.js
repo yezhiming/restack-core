@@ -19,12 +19,14 @@ class Model {
   createSaga() {
     const { name, reducers, createSaga, sagas } = this.config;
 
-    if (_.isFunction(createSaga)) return createSaga()
+    // redux-saga effects as second parameter, plus update effect
+    const enhancedEffects = {...effects, update: createUpdateEffect(name)}
+
+    if (_.isFunction(createSaga)) return createSaga(enhancedEffects)
 
     const sagaGenerators = _(sagas)
     .mapValues((v, k) => {
-      // redux-saga effects as second parameter, plus update effect
-      const enhancedEffects = {...effects, update: createUpdateEffect(name)}
+
       const watcher = function* () {
         console.log(`takeEvery: ${name}/${k}`)
         // yield takeEvery(k, v)

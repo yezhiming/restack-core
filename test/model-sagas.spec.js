@@ -121,7 +121,9 @@ describe('create app', () => {
     app.model({
       name: 'test',
       initialState: {},
-      createSaga: () => {
+      createSaga: ({update}) => {
+
+        expect(update instanceof Function).toBeTruthy()
 
         function* executeGenerator() {
           fnToBeCalled()

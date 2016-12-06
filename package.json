@@ -1,6 +1,6 @@
 {
   "name": "restack-core",
-  "version": "0.3.9",
+  "version": "0.3.11",
   "description": "react application tools",
   "main": "lib/index.js",
   "scripts": {
