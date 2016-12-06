@@ -51,10 +51,10 @@ class Model {
   }
 
   createReducer() {
-    const { name, initialState, reducers, createReducer } = this.config;
+    const { name, initialState, reducers, reducer } = this.config;
 
     // custom create function
-    if (_.isFunction(createReducer)) return createReducer()
+    if (_.isFunction(reducer)) return reducer
 
     let modelReducer = null;
 

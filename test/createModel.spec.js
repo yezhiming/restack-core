@@ -39,10 +39,8 @@ describe('create model', () => {
   it('can define createReducer', () => {
     const model = createModel({
       name: 'test4',
-      createReducer: () => {
-        return function reducer(state, action) {
-          return {test: true}
-        }
+      reducer: (state, action) => {
+        return {test: true}
       }
     })
 
