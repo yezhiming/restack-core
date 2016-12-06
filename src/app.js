@@ -1,16 +1,16 @@
 // core frameworks
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { combineReducers } from 'redux';
+
 import { Provider } from 'react-redux';
-import createSagaMiddleware, { effects, takeEvery } from 'redux-saga'
+import createSagaMiddleware from 'redux-saga'
 
 import _ from 'lodash'
-import u from 'updeep'
 
-import createAbortableSaga, {CANCEL_SAGAS} from './utils/createAbortableSaga'
+import createModel from './model'
+import {CANCEL_SAGAS} from './utils/createAbortableSaga'
 import configureStore from './store/configureStore'
-import { createUpdateReducer, createUpdateEffect } from './utils/updateReducer'
+
 import errorMessage from './reducers/errorMessage'
 import modal from './reducers/modal'
 
@@ -57,8 +57,8 @@ class App {
   }
 
   model(model) {
-    const { app } = this;
-    app.models = [...app.models, model];
+    const { app } = this
+    app.models = [...app.models, createModel(model)]
   }
 
   // 1. collect reducers from plugins & models (created by framework)
@@ -75,24 +75,8 @@ class App {
     }, reducers)
     // create a default Reducer for each model
     reducers = app.models.reduce( (all, model) => {
-
-      let modelReducers = model.reducers;
-
-      // combine if nessasary
-      if (_.isObject(model.reducers)) {
-        modelReducers = combineReducers(model.reducers)
-      }
-
-      const updateReducer = createUpdateReducer(model.name, model.initialState)
-
-      const modelRootReducer = function(state = model.initialState, action) {
-        if (_.isFunction(modelReducers)) {
-          state = modelReducers(state, action)
-        }
-        return updateReducer(state, action)
-      }
-
-      return {...all, [model.name]: modelRootReducer}
+      const modelReducer = model.createReducer()
+      return {...all, [model.name]: modelReducer}
     }, reducers)
 
     // merge plugin initialState
@@ -111,34 +95,9 @@ class App {
   }
 
   createSagas() {
-    const { app } = this;
+    const { app: { models } } = this;
 
-    const sagas = _(app.models)
-    .filter(m => m.sagas)
-    .reduce( (all, m) => {
-
-      //TODO: see what?
-
-      const sagas = _(m.sagas)
-      .mapKeys((v, k) => `${m.name}/${k}`)
-      .mapValues((v, k) => {
-        // redux-saga effects as second parameter, plus update effect
-        const enhancedEffects = {...effects, update: createUpdateEffect(m.name)}
-        const watcher = function* () {
-          console.log(`takeEvery: ${k}`)
-          // yield takeEvery(k, v)
-          // yield takeEvery(k, (action) => v(action, enhancedEffects))
-          yield takeEvery(k, (action) => v(action, enhancedEffects))
-        }
-
-        return createAbortableSaga(watcher);
-      })
-      .value()
-
-      return {...all, ...sagas}
-    }, {})
-
-    return sagas;
+    return _(models).map(m => m.createSaga()).compact().value()
   }
 
   //hmr for sagas modules

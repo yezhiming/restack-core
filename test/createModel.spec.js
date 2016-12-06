@@ -8,7 +8,7 @@ describe('create model', () => {
   })
 
   it('can define createReducer', () => {
-    const model = createModel({name: 'test2'})
+    const model = createModel({name: 'test2', initialState: {}})
     const reducer = model.createReducer()
     expect(reducer instanceof Function).toBeTruthy()
   })
@@ -35,7 +35,7 @@ describe('create model', () => {
       m2: {b: 'b'}
     })
   })
-  
+
   it('can define createReducer', () => {
     const model = createModel({
       name: 'test4',

@@ -1,3 +1,6 @@
+import {takeEvery} from 'redux-saga'
+import {fork} from 'redux-saga/effects'
+
 import createApp from '../src/app'
 import {UPDATE} from '../src/utils/updateReducer'
 
@@ -22,7 +25,7 @@ describe('create app', () => {
     })
     app.create()
     const { store } = window;
-    console.log(store.getState())
+    expect(store).not.toBeNull()
   })
 
   it('can define reducers as map', () => {
@@ -84,38 +87,71 @@ describe('create app', () => {
 
     const { store } = window;
 
-    console.log(store.getState())
-
     expect(store.getState().test).toEqual(initialState)
   })
 
-  it('can define sagas as map', () => {
+  it('can define sagas', () => {
+    const fnToBeCalled = jest.fn();
 
-  })
-
-  it('can define sagas as function', () => {
     const app = createApp({});
     app.model({
-      createSagas: () => {
+      name: 'test',
+      initialState: {},
+      sagas: {
+        *myAction() {
+          fnToBeCalled()
+        }
+      }
+    })
+
+    app.create()
+
+    const { store } = window;
+
+    store.dispatch({type: "test/myAction"})
+
+    expect(fnToBeCalled).toBeCalled()
+  })
+
+  it('can define createSaga', () => {
+
+    const fnToBeCalled = jest.fn();
+
+    const app = createApp({});
+    app.model({
+      name: 'test',
+      initialState: {},
+      createSaga: () => {
+
+        function* executeGenerator() {
+          fnToBeCalled()
+        }
 
         function* g1() {
-
+          yield takeEvery(TAKE_EFFECT_ACTION, executeGenerator)
         }
 
         function* g2() {
 
         }
 
-        function* root() {
+        function* customSaga() {
           yield [
             fork(g1),
             fork(g2)
           ]
         }
 
-        return root
+        return customSaga
       }
     })
 
+    app.create()
+
+    const { store } = window;
+
+    store.dispatch({type: TAKE_EFFECT_ACTION})
+
+    expect(fnToBeCalled).toBeCalled()
   })
 })
