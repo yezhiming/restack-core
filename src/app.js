@@ -103,7 +103,7 @@ class App {
   //hmr for sagas modules
   replaceSagas(models) {
     const {app} = this;
-    app.models = models;
+    app.models = models.map(m => createModel(m));
     app.store.dispatch({type:CANCEL_SAGAS})
     setTimeout(()=>{
       const sagas = this.createSagas();
